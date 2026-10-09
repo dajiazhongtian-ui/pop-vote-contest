@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#fff9f2">
+  <title>投票結果｜POPコンテスト</title>
+  <style>
+    :root{--ink:#392a27;--paper:#fff9f2;--card:#fffdf9;--accent:#b95f46;--line:#ead9cb;--muted:#806b62}
+    *{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;padding:20px;background:radial-gradient(ellipse at 50% 0,#fff1e2 0,#fff9f2 460px);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,sans-serif;line-height:1.65}
+    .box{width:min(92vw,560px);padding:38px 30px;background:var(--card);border:1px solid #f0ded0;border-radius:26px;text-align:center;box-shadow:0 14px 38px #74452b14}.badge{color:var(--accent);font:700 .72rem Georgia,serif;letter-spacing:.2em}h1{font-size:1.8rem;margin:8px 0 10px}.intro{color:var(--muted);margin:0 auto 22px;max-width:390px;font-size:.92rem}.field{display:flex;gap:9px;margin:0 auto;max-width:390px}.field input{min-width:0;flex:1;padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:#fffaf5;font:inherit}.field button{padding:11px 18px;border:0;border-radius:12px;background:var(--accent);color:#fff;font:inherit;font-weight:700;cursor:pointer}.error{min-height:1.5em;margin:9px 0;color:#a14435;font-size:.84rem}.result{display:none;margin-top:20px;padding:20px 15px;background:#fff7ef;border:1px solid #f0ded0;border-radius:16px;text-align:left}.result.visible{display:block}.result h2{font-size:1.1rem;margin:0 0 6px;text-align:center}.summary{text-align:center;color:var(--muted);font-size:.87rem;margin:0 0 15px}.row{display:grid;grid-template-columns:56px 1fr 34px;align-items:center;gap:9px;margin:9px 0;font-size:.84rem}.bar{height:9px;background:#f0dfd2;border-radius:9px;overflow:hidden}.bar i{display:block;height:100%;background:linear-gradient(90deg,#cb795e,#a94e3a);border-radius:9px}.count{text-align:right;font-variant-numeric:tabular-nums}.back{display:inline-block;margin-top:18px;color:#966756;text-decoration:none;font-size:.85rem;border-bottom:1px solid #d7b7a4}.back:hover{color:#623f33}@media(max-width:420px){.box{padding:30px 18px}.field{flex-direction:column}.field button{width:100%}.row{grid-template-columns:48px 1fr 30px;gap:6px}}
+  </style>
+</head>
+<body>
+  <main class="box">
+    <div class="badge">VOTING RESULTS</div>
+    <h1>投票結果</h1>
+    <p class="intro">関係者用パスワードを入力してください。</p>
+    <form id="gate" class="field"><input id="password" type="password" autocomplete="current-password" placeholder="パスワード" aria-label="パスワード"><button type="submit">確認する</button></form>
+    <p class="error" id="error" role="alert"></p>
+    <section class="result" id="result" aria-live="polite"><h2>投票結果</h2><p class="summary" id="summary"></p><div id="rows"></div></section>
+    <a class="back" href="index.html">投票ページに戻る</a>
+  </main>
+  <script src="config.js"></script>
+  <script>
+    const form=document.querySelector('#gate'),error=document.querySelector('#error'),result=document.querySelector('#result');
+    function jsonp(url,params){return new Promise((resolve,reject)=>{const cb='popcb_'+Date.now()+'_'+Math.random().toString(36).slice(2);const script=document.createElement('script');const timer=setTimeout(()=>{cleanup();reject(new Error('timeout'))},12000);function cleanup(){clearTimeout(timer);delete window[cb];script.remove()}window[cb]=data=>{cleanup();resolve(data)};script.onerror=()=>{cleanup();reject(new Error('network'))};script.src=url+'?'+new URLSearchParams({...params,callback:cb});document.body.append(script)})}
+    form.addEventListener('submit',async event=>{event.preventDefault();const api=window.POP_VOTE_CONFIG.apiUrl;if(!api){error.textContent='結果表示の接続がまだ完了していません。';return}const button=form.querySelector('button');button.disabled=true;button.textContent='確認中…';try{const data=await jsonp(api,{action:'results',password:document.querySelector('#password').value});if(!data.ok)throw new Error(data.error||'failed');const total=data.total||0;document.querySelector('#summary').textContent=`合計 ${total} 票`;const max=Math.max(1,...data.counts);document.querySelector('#rows').innerHTML=data.counts.map((count,i)=>`<div class="row"><strong>No.${i+1}</strong><span class="bar"><i style="width:${count/max*100}%"></i></span><span class="count">${count}</span></div>`).join('');result.classList.add('visible');form.hidden=true;error.textContent=''}catch(err){error.textContent=err.message==='unauthorized'?'パスワードをご確認ください。':'結果を読み込めませんでした。接続を確認してください。';button.disabled=false;button.textContent='確認する'}});
+  </script>
+</body>
+</html>
