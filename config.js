@@ -1,4 +1,4 @@
-// Google Apps ScriptのウェブアプリURLを設定してください（公開前の接続手順は README.md）。
+// Google Apps ScriptのウェブアプリURLです。
 window.POP_VOTE_CONFIG = {
-  apiUrl: 'https://script.google.com/macros/s/AKfycbw4Ew_GsKDgh8pYHcWQCauOamY6Yb6nMVI16pnlFP0-Yfz77kNNtV-cqrmYl_27_xs_6w/exec'
+  apiUrl: 'https://script.google.com/macros/s/AKfycbwslDG1n3mf1KMyLg3PKSa1K89nCOQhOte3LKAlZDrPvLOi1E940ABVm-y21UTnssY8Aw/exec'
 };
